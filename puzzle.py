@@ -79,8 +79,14 @@ class puzzle :
 					photoId = photo['id']
 					tagXCoor = tag['x'] 		# x coordinate of tag
 					tagYCoor = tag['y']
+					url = self.makeURL(photoId)
+					img = Image()
 					imgFileName = self.id+"img.jpg"
-					return [urllib.urlretrieve(url, imgFileName), tagXCoor, tagYCoor]
+					urllib.urlretrieve(url, imgFileName)
+					self.ip = imageProcess.imageProcess()
+					self.ip.fileName = imgFileName
+					img
+					return imgFileName
 	
 	def showHint(self) :
 		try :
