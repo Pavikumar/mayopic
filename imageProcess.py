@@ -36,7 +36,7 @@ class imageProcess:
 		newImage.save(self.fileName+".crop", "PNG")
 		
 	def incrementSize(self, increment):
-		self.newSize+=1
+		self.newSize+=increment
 
 '''		
 if __name__ == "__main__":
