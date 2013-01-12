@@ -10,17 +10,18 @@ from random import choice
 import imageProcess
 
 class puzzle :
-	accessToken = "AAACEdEose0cBAKRhQpUzEDOvOd86cZCgAbJana8T4FPCxCVBegciHg1z5OIpZBKVAuG6n6aZAbOaXVjvunew4tcyWyTMEFW0bXi0OeKhgZDZD"
 
 	def makeURL(self, call)	:
 		url = "https://graph.facebook.com/" + call + "&access_token="+self.accessToken
 		return url
 	
-	def __init__(self) :
+	def __init__(self, token) :
+		self.accessToken = token
 		url = self.makeURL("me?fields=friends.fields(id,username)")
 		urlData = urllib.urlopen(url)
 		data = urlData.read()
 		friends = json.loads(data)
+		print friends
 		listOfFriends = friends['friends']['data']
 
 		amountOfFriends = len(listOfFriends)
@@ -30,7 +31,7 @@ class puzzle :
 		self.username = randFriend['username']
 			
 	def getInfo(self) :
-		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status,location,hometown)")
+		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status)")
 		rawdata = urllib.urlopen(url)
 		friendraw = rawdata.read()
 		#print url
@@ -43,23 +44,21 @@ class puzzle :
 		self.name = friend['name']
 		if "relationship_status" in friend :
 			self.hints['relationship_status'] = self.relationship_status = friend['relationship_status']
-		if "location" in friend :
-			self.hints['location'] = self.location = friend['location']['name']
-		if "hometown" in friend :
-			self.hints['hometown'] = self.hometown = friend['hometown']['name']
 		#pprint(self.hints)
 	def getProfilePicture(self) :
-		url = "https://graph.facebook.com/"+self.username+"/picture?width=800&height=800"
+		url = "https://graph.facebook.com/"+self.username+"/picture?width=400&height=400"
+		savingToDirectory = "/srv/www/davidguo.ca/public_html/hackathon2013/hackathon2013/core/images/"		
 		imgFileName = self.id+"img.jpg"
 		fileExist = False;
-		for files in os.listdir("."):
+		
+		for files in os.listdir(savingToDirectory):
 			if files == imgFileName and files.endswith(".jpg"):
 				fileExist = True
 				break
 		if fileExist == False :
-			urllib.urlretrieve(url, imgFileName)
+			urllib.urlretrieve(url, savingToDirectory+imgFileName)
 			self.ip = imageProcess.imageProcess()
-			self.ip.fileName = imgFileName
+			self.ip.fileName = savingToDirectory+imgFileName
 			self.ip.pixelate()
 				
 		return imgFileName
@@ -94,17 +93,12 @@ class puzzle :
 	
 	def showHint(self) :
 		try :
-			self.hints
+			self.info
 		except AttributeError :
 			self.getInfo()
-
-		if len(self.hints) <= 0 :
-			return "There is no more hint available"
 		
 		hintKey = random.choice(self.hints.keys())
 
 		hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
-
-		del self.hints[hintKey]
 
 		return hint
