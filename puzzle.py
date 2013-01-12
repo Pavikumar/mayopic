@@ -10,7 +10,7 @@ from random import choice
 import imageProcess
 
 class puzzle :
-	accessToken = "AAAF0HW88pkcBAHHkpKx2cm5RZA9DdkdhpBxAswUZBZBjBuHJToICZBzaXi4i6HcKOlsRdAXmnGZC6fjRKbsx36j6nRCySp2iafbPRUlXovAZDZD"
+	accessToken = "AAACEdEose0cBAAgr45YojUzmZAZBPqf2RASWxW5L11ASI48LUVVAiTAGk2x3InCxTViox2MwCPresPT6ZBZBcTT1PcePIMvod3MMeYQsfgZDZD"
 
 	def makeURL(self, call)	:
 		url = "https://graph.facebook.com/" + call + "&access_token="+self.accessToken
@@ -71,14 +71,14 @@ class puzzle :
 		response = json.loads(request.read())
 		listOfPhotos = response['friends']['data'][0]['photos']['data']
 		
-		pprint(listOfPhotos)
-		
 		for photo in listOfPhotos :
-			for tag in photo['tags']['data']
-				if tag['id'] == self.id
-					photoId = photo.id
-					tagXCoor = tag.x 		# x coordinate of tag
-					tagYCoor = tag.y
+			if 'tags' not in photo:
+				continue
+			for tag in photo['tags']['data'] :
+				if tag['id'] == self.id :
+					photoId = photo['id']
+					tagXCoor = tag['x'] 		# x coordinate of tag
+					tagYCoor = tag['y']
 					imgFileName = self.id+"img.jpg"
 					return [urllib.urlretrieve(url, imgFileName), tagXCoor, tagYCoor]
 	
