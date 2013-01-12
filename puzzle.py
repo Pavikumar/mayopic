@@ -6,9 +6,11 @@ import pprint
 import random
 from pprint import pprint
 import os
+from random import choice
+import imageProcess
 
 class puzzle :
-	accessToken = "AAAF0HW88pkcBAOknQJOsOgNz8w9AEdWZBdYucMySiYZBmyaLU7U1CtSZA6VvYfS1iCUz5reKsdjfPQ5MWZB7M0GaZCGUsvUrLGkkcU6oVLgZDZD"
+	accessToken = "AAAF0HW88pkcBAHHkpKx2cm5RZA9DdkdhpBxAswUZBZBjBuHJToICZBzaXi4i6HcKOlsRdAXmnGZC6fjRKbsx36j6nRCySp2iafbPRUlXovAZDZD"
 
 	def makeURL(self, call)	:
 		url = "https://graph.facebook.com/" + call + "&access_token="+self.accessToken
@@ -27,33 +29,51 @@ class puzzle :
 		self.id = randFriend['id']
 		self.username = randFriend['username']
 			
-	def getinfo(self) :
+	def getInfo(self) :
 		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status)")
 		rawdata = urllib.urlopen(url)
 		friendraw = rawdata.read()
+		#print url
+		#print friendraw
 		friendInfo = json.loads(friendraw)
-		friend = friendInfo['friends']['data']
-		self.birthday = friendInfo['birthday']
-		self.name = friendInfo['Kitna Chan']
-		self.relationship_status = friendInfo['In a Relationship']
-                #returns a dict containing birthday, id, name, relationsip status, and username
-		return friend
-	
+		friend = friendInfo['friends']['data'][0]
+		self.hints = {}
+		if "birthday" in friend :
+			self.hints['birthday'] = self.birthday = friend['birthday']
+		self.name = friend['name']
+		if "relationship_status" in friend :
+			self.hints['relationship_status'] = self.relationship_status = friend['relationship_status']
+		#pprint(self.hints)
 	def getProfilePicture(self) :
 		url = "https://graph.facebook.com/"+self.username+"/picture?width=800&height=800"
 		imgFileName = self.id+"img.jpg"
 		fileExist = False;
 		for files in os.listdir("."):
 			if files == imgFileName and files.endswith(".jpg"):
-					fileExist = True
-					break
+				fileExist = True
+				break
 		if fileExist == False :
-				urllib.urlretrieve(url, imgFileName)
+			urllib.urlretrieve(url, imgFileName)
+			self.ip = imageProcess.imageProcess()
+			self.ip.fileName = imgFileName
+			self.ip.pixelate()
+				
 		return imgFileName
 
-	def showHint() :
-		print "hello"
+	def unPixelate(self) :
+		self.ip.incrementSize(5)
+		self.ip.pixelate()
+                
+        
+	def showHint(self) :
+		try :
+			self.info
+		except AttributeError :
+			self.getInfo()
+		
+		hintKey = random.choice(self.hints.keys())
 
-p = puzzle()
-p.getProfilePicture()
+		hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
+
+		return hint
 
