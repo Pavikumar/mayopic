@@ -111,13 +111,12 @@ class puzzle :
 		except AttributeError :
 			self.getInfo()
 
-		if len(self.hints) <= 0 :
-			return "There is no more hint available"
+		if len(self.hints) <= hintsUsed :
+			return "There are no more hints available"
 
-		hintKey = random.choice(self.hints.keys())
+		hints=[]
+		for hintKey in self.hints :
+			hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
+			hints.append(hint)
 
-		hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
-
-		del self.hints[hintKey]
-
-		return hint
+		return hints[hintsUsed]
