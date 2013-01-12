@@ -16,11 +16,11 @@ class imageProcess:
 
 		orgImage.thumbnail(Size)
 
-		orgImage.save(self.fileName+".pixl", "PNG")
+		orgImage.save(self.fileName+".pixl.png", "PNG")
 
-		newImage = Image.open(self.fileName+".pixl")
-		newImage = newImage.resize(orgSize)
-		newImage.save(self.fileName+".pixl", "PNG")
+		newImage = Image.open(self.fileName+".pixl.png")
+		newImage = newImage.resize((400,400))
+		newImage.save(self.fileName+".pixl.png", "PNG")
 		
 	def crop(self):
 		orgImage = Image.open(self.fileName)
@@ -31,9 +31,9 @@ class imageProcess:
 		
 		newImage = orgImage.crop((orgSize[0]/2-Size[0]/2, orgSize[1]/2-Size[1]/2, orgSize[0]/2+Size[0]/2, orgSize[1]/2+Size[1]/2))
 		
-		newImage = newImage.resize(orgSize)
-		newImage.save(self.fileName+".crop", "PNG")
-		newImage.save(self.fileName+".crop", "PNG")
+		#newImage = newImage.resize(orgSize)
+		newImage = newImage.resize((400,400))
+		newImage.save(self.fileName+".crop.png", "PNG")
 		
 	def incrementSize(self, increment):
 		self.newSize+=increment
