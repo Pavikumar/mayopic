@@ -37,10 +37,12 @@ class imageProcess:
 		
 	def incrementSize(self, increment):
 		self.newSize+=1
-		
+
+'''		
 if __name__ == "__main__":
 	ip = imageProcess();
 	ip.fileName = sys.argv[1]
 	ip.newSize = int(sys.argv[2])
 	ip.pixelate()
 	ip.crop()
+'''
