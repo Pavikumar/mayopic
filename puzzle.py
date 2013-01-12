@@ -63,8 +63,25 @@ class puzzle :
 	def unPixelate(self) :
 		self.ip.incrementSize(5)
 		self.ip.pixelate()
-                
-        
+    
+	def getTaggedPhoto(self):
+		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(photos.fields(tags,id))")
+		request = urllib.urlopen(url)
+		
+		response = json.loads(request.read())
+		listOfPhotos = response['friends']['data'][0]['photos']['data']
+		
+		pprint(listOfPhotos)
+		
+		for photo in listOfPhotos :
+			for tag in photo['tags']['data']
+				if tag['id'] == self.id
+					photoId = photo.id
+					tagXCoor = tag.x 		# x coordinate of tag
+					tagYCoor = tag.y
+					imgFileName = self.id+"img.jpg"
+					return [urllib.urlretrieve(url, imgFileName), tagXCoor, tagYCoor]
+	
 	def showHint(self) :
 		try :
 			self.info
@@ -77,3 +94,5 @@ class puzzle :
 
 		return hint
 
+p = puzzle()
+p.getTaggedPhoto()
