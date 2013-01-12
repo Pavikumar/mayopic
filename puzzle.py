@@ -15,23 +15,33 @@ class puzzle :
 		url = "https://graph.facebook.com/" + call + "&access_token="+self.accessToken
 		return url
 	
-	def __init__(self, token) :
+	def __init__(self, token, userId = None) :
 		self.accessToken = token
-		url = self.makeURL("me?fields=friends.fields(id,username)")
-		urlData = urllib.urlopen(url)
-		data = urlData.read()
-		friends = json.loads(data)
-		print friends
-		listOfFriends = friends['friends']['data']
+		if userId == None :
+			url = self.makeURL("me?fields=friends.fields(id,username)")
+			urlData = urllib.urlopen(url)
+			data = urlData.read()
+			friends = json.loads(data)
+			print friends
+			listOfFriends = friends['friends']['data']
 
-		amountOfFriends = len(listOfFriends)
-		randomFrindNumber = random.randint(1, amountOfFriends)
-		randFriend = listOfFriends[randomFrindNumber]
-		self.id = randFriend['id']
-		self.username = randFriend['username']
+			amountOfFriends = len(listOfFriends)
+			randomFrindNumber = random.randint(1, amountOfFriends)
+			randFriend = listOfFriends[randomFrindNumber]
+			userId = randFriend['id']
+			userName = randFriend['username']
+		else:
+			url = self.makeURL("me?fields=friends.uid("+userId+").fields(username)")
+			urlData = urllib.urlopen(url)
+			data = urlData.read()
+			friend = json.loads(data)
+			userName = friend['friends']['data'][0]['username']
+			
+		self.id = userId
+		self.username = userName
 			
 	def getInfo(self) :
-		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status)")
+		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status,location,hometown)")
 		rawdata = urllib.urlopen(url)
 		friendraw = rawdata.read()
 		#print url
@@ -44,6 +54,10 @@ class puzzle :
 		self.name = friend['name']
 		if "relationship_status" in friend :
 			self.hints['relationship_status'] = self.relationship_status = friend['relationship_status']
+		if "location" in friend :
+			self.hints['location'] = self.location = friend['location']['name']
+		if "hometown" in friend :
+			self.hints['hometown'] = self.hometown = friend['hometown']['name']
 		#pprint(self.hints)
 	def getProfilePicture(self) :
 		url = "https://graph.facebook.com/"+self.username+"/picture?width=400&height=400"
@@ -91,14 +105,19 @@ class puzzle :
 					img
 					return imgFileName
 	
-	def showHint(self) :
+	def showHint(self, hintsUsed = 0) :
 		try :
-			self.info
+			self.hints
 		except AttributeError :
 			self.getInfo()
-		
+
+		if len(self.hints) <= 0 :
+			return "There is no more hint available"
+
 		hintKey = random.choice(self.hints.keys())
 
 		hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
+
+		del self.hints[hintKey]
 
 		return hint
