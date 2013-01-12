@@ -10,7 +10,7 @@ from random import choice
 import imageProcess
 
 class puzzle :
-	accessToken = "AAACEdEose0cBAAgr45YojUzmZAZBPqf2RASWxW5L11ASI48LUVVAiTAGk2x3InCxTViox2MwCPresPT6ZBZBcTT1PcePIMvod3MMeYQsfgZDZD"
+	accessToken = "AAACEdEose0cBAKRhQpUzEDOvOd86cZCgAbJana8T4FPCxCVBegciHg1z5OIpZBKVAuG6n6aZAbOaXVjvunew4tcyWyTMEFW0bXi0OeKhgZDZD"
 
 	def makeURL(self, call)	:
 		url = "https://graph.facebook.com/" + call + "&access_token="+self.accessToken
@@ -30,7 +30,7 @@ class puzzle :
 		self.username = randFriend['username']
 			
 	def getInfo(self) :
-		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status)")
+		url = self.makeURL("me?fields=friends.uid("+self.id+").fields(username,name,birthday,relationship_status,location,hometown)")
 		rawdata = urllib.urlopen(url)
 		friendraw = rawdata.read()
 		#print url
@@ -43,6 +43,10 @@ class puzzle :
 		self.name = friend['name']
 		if "relationship_status" in friend :
 			self.hints['relationship_status'] = self.relationship_status = friend['relationship_status']
+		if "location" in friend :
+			self.hints['location'] = self.location = friend['location']['name']
+		if "hometown" in friend :
+			self.hints['hometown'] = self.hometown = friend['hometown']['name']
 		#pprint(self.hints)
 	def getProfilePicture(self) :
 		url = "https://graph.facebook.com/"+self.username+"/picture?width=800&height=800"
@@ -90,15 +94,17 @@ class puzzle :
 	
 	def showHint(self) :
 		try :
-			self.info
+			self.hints
 		except AttributeError :
 			self.getInfo()
+
+		if len(self.hints) <= 0 :
+			return "There is no more hint available"
 		
 		hintKey = random.choice(self.hints.keys())
 
 		hint = "Your friend's " + hintKey + " is " + self.hints[hintKey]
 
-		return hint
+		del self.hints[hintKey]
 
-p = puzzle()
-p.getTaggedPhoto()
+		return hint
